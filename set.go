@@ -8,10 +8,6 @@ type Set[T Item] struct {
 	data map[T]SetValue
 }
 
-func (s Set[T]) Size() int {
-	return len(s.data)
-}
-
 func NewSet[T Item](items []T) *Set[T] {
 	data := make(map[T]SetValue)
 	for _, v := range items {
@@ -23,11 +19,6 @@ func NewSet[T Item](items []T) *Set[T] {
 func NewEmptySet[T Item]() *Set[T] {
 	data := make(map[T]SetValue)
 	return &Set[T]{data}
-}
-
-func (s *Set[T]) Has(value T) bool {
-	_, ok := s.data[value]
-	return ok
 }
 
 func (s *Set[T]) Add(value T) *Set[T] {
@@ -42,4 +33,38 @@ func (s *Set[T]) Clear() *Set[T] {
 	empty := make(map[T]SetValue)
 	s.data = empty
 	return s
+}
+
+func (s *Set[T]) Delete(value T) *Set[T] {
+	delete(s.data, value)
+	return s
+}
+
+/*
+Returns a new set with all items that are in the receiver set
+but not in the other set.
+*/
+func (s Set[T]) Difference(other *Set[T]) (r *Set[T]) {
+	r = NewEmptySet[T]()
+
+	if s.Size() == 0 {
+		return
+	}
+
+	for v := range s.data {
+		if !other.Has(v) {
+			r.Add(v)
+		}
+	}
+
+	return
+}
+
+func (s *Set[T]) Has(value T) bool {
+	_, ok := s.data[value]
+	return ok
+}
+
+func (s Set[T]) Size() int {
+	return len(s.data)
 }
