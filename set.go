@@ -94,6 +94,19 @@ func (s Set[T]) Intersection(other *Set[T]) (r *Set[T]) {
 	return
 }
 
+/*
+Returns true if the receiver set has no common items with
+the other set
+*/
+func (s Set[T]) DisjointFrom(other *Set[T]) bool {
+	for v := range s.data {
+		if other.Has(v) {
+			return false
+		}
+	}
+	return true
+}
+
 func (s Set[T]) Size() int {
 	return len(s.data)
 }

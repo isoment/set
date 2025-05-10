@@ -114,6 +114,26 @@ func TestIntersection(t *testing.T) {
 	assertTrue(t, s.Has(138))
 }
 
+func TestDisjointFrom(t *testing.T) {
+	t.Run("it returns true if receiver set has no common items with other", func(t *testing.T) {
+		odd := NewSet([]int{1, 3, 5, 7})
+		even := NewSet([]int{2, 4, 6, 8})
+
+		got := odd.DisjointFrom(even)
+
+		assertTrue(t, got)
+	})
+
+	t.Run("it returns false if receiver set has common items with other", func(t *testing.T) {
+		one := NewSet([]string{"a", "b", "d"})
+		two := NewSet([]string{"c", "e", "b"})
+
+		got := one.DisjointFrom(two)
+
+		assertFalse(t, got)
+	})
+}
+
 func TestSize(t *testing.T) {
 	s := NewSet([]string{"a", "b", "c"})
 	size := s.Size()
