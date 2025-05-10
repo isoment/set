@@ -60,9 +60,38 @@ func (s Set[T]) Difference(other *Set[T]) (r *Set[T]) {
 	return
 }
 
+/*
+Execute the provided function for each item in the set
+*/
+func (s Set[T]) Each(f func(a T)) {
+	for v := range s.data {
+		f(v)
+	}
+}
+
 func (s *Set[T]) Has(value T) bool {
 	_, ok := s.data[value]
 	return ok
+}
+
+/*
+Returns a new set with all common items in the receiver set
+and the other set.
+*/
+func (s Set[T]) Intersection(other *Set[T]) (r *Set[T]) {
+	r = NewEmptySet[T]()
+
+	if s.Size() == 0 {
+		return
+	}
+
+	for v := range s.data {
+		if other.Has(v) {
+			r.Add(v)
+		}
+	}
+
+	return
 }
 
 func (s Set[T]) Size() int {

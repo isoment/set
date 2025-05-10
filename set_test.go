@@ -80,12 +80,38 @@ func TestDifference(t *testing.T) {
 	})
 }
 
+func TestEach(t *testing.T) {
+	count := 0
+
+	r := NewSet([]int{4, 7, 8, 23, 138})
+	r.Each(func(a int) {
+		count++
+	})
+
+	if count != 5 {
+		t.Errorf("Expected 5 function calls, go %d", count)
+	}
+}
+
 func TestHas(t *testing.T) {
 	s := NewSet([]string{"a", "b", "c"})
 	assertTrue(t, s.Has("a"))
 	assertTrue(t, s.Has("b"))
 	assertTrue(t, s.Has("c"))
 	assertFalse(t, s.Has("z"))
+}
+
+func TestIntersection(t *testing.T) {
+	r := NewSet([]int{4, 7, 8, 23, 138})
+	s := NewSet([]int{9, 21, 22, 23, 87, 132, 138})
+
+	got := r.Intersection(s)
+	if got.Size() != 2 {
+		t.Errorf("expected size 2 got %d", got.Size())
+	}
+
+	assertTrue(t, s.Has(23))
+	assertTrue(t, s.Has(138))
 }
 
 func TestSize(t *testing.T) {
