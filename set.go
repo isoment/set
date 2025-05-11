@@ -61,7 +61,7 @@ func (s Set[T]) Difference(other *Set[T]) (r *Set[T]) {
 }
 
 /*
-Execute the provided function for each item in the set
+Execute the provided function for each item in the set.
 */
 func (s Set[T]) Each(f func(a T)) {
 	for v := range s.data {
@@ -72,6 +72,23 @@ func (s Set[T]) Each(f func(a T)) {
 func (s *Set[T]) Has(value T) bool {
 	_, ok := s.data[value]
 	return ok
+}
+
+/*
+Two sets are equal if they are the same size and share the same items
+*/
+func (s *Set[T]) Equal(other *Set[T]) bool {
+	if s.Size() != other.Size() {
+		return false
+	}
+
+	for v := range s.data {
+		if !other.Has(v) {
+			return false
+		}
+	}
+
+	return true
 }
 
 /*
@@ -96,14 +113,32 @@ func (s Set[T]) Intersection(other *Set[T]) (r *Set[T]) {
 
 /*
 Returns true if the receiver set has no common items with
-the other set
+the other set.
 */
-func (s Set[T]) DisjointFrom(other *Set[T]) bool {
+func (s Set[T]) IsDisjointFrom(other *Set[T]) bool {
 	for v := range s.data {
 		if other.Has(v) {
 			return false
 		}
 	}
+	return true
+}
+
+/*
+Returns true if the receiver is a subset of other, every item
+in the receiver set is present in the other set.
+*/
+func (s Set[T]) IsSubsetOf(other *Set[T]) bool {
+	if s.Size() > other.Size() {
+		return false
+	}
+
+	for v := range s.data {
+		if !other.Has(v) {
+			return false
+		}
+	}
+
 	return true
 }
 

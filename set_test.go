@@ -53,31 +53,34 @@ func TestDelete(t *testing.T) {
 }
 
 func TestDifference(t *testing.T) {
-	t.Run("it returns an empty set if receiver set is empty", func(t *testing.T) {
-		s := NewEmptySet[string]()
-		u := NewSet([]string{"a", "b", "c"})
+	testCases := []struct {
+		name     string
+		s1       *Set[int]
+		s2       *Set[int]
+		expected *Set[int]
+	}{
+		{
+			name:     "it returns an empty set if receiver set is empty",
+			s1:       NewEmptySet[int](),
+			s2:       NewSet([]int{1, 2, 3}),
+			expected: NewEmptySet[int](),
+		},
+		{
+			name:     "it returns items in receiver set that are not in the other set",
+			s1:       NewSet([]int{4, 7, 8, 23, 138}),
+			s2:       NewSet([]int{6, 8, 54, 65, 102, 138}),
+			expected: NewSet([]int{4, 7, 23}),
+		},
+	}
 
-		got := s.Difference(u)
-
-		if got.Size() != 0 {
-			t.Error("expected empty set")
-		}
-	})
-
-	t.Run("it returns the difference in a new set", func(t *testing.T) {
-		r := NewSet([]int{4, 7, 8, 23, 138})
-		s := NewSet([]int{6, 8, 54, 65, 102, 138})
-
-		got := r.Difference(s)
-
-		if got.Size() != 3 {
-			t.Errorf("expected set size to be 3 got %d", got.Size())
-		}
-
-		assertTrue(t, got.Has(4))
-		assertTrue(t, got.Has(7))
-		assertTrue(t, got.Has(23))
-	})
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := tc.s1.Difference(tc.s2)
+			if !got.Equal(tc.expected) {
+				t.Errorf("expected: %v but got: %v", tc.expected, got)
+			}
+		})
+	}
 }
 
 func TestEach(t *testing.T) {
@@ -101,6 +104,43 @@ func TestHas(t *testing.T) {
 	assertFalse(t, s.Has("z"))
 }
 
+func TestEqual(t *testing.T) {
+	testCases := []struct {
+		name     string
+		s1       *Set[int]
+		s2       *Set[int]
+		expected bool
+	}{
+		{
+			name:     "it returns false for different size sets",
+			s1:       NewSet([]int{1, 2}),
+			s2:       NewSet([]int{1, 2, 3, 4}),
+			expected: false,
+		},
+		{
+			name:     "it returns true for empty sets",
+			s1:       NewEmptySet[int](),
+			s2:       NewEmptySet[int](),
+			expected: true,
+		},
+		{
+			name:     "it returns true for equal sets",
+			s1:       NewSet([]int{1, 2, 3, 4, 5}),
+			s2:       NewSet([]int{1, 2, 5, 4, 3}),
+			expected: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := tc.s1.Equal(tc.s2)
+			if got != tc.expected {
+				t.Errorf("got: %v but expected %v", got, tc.expected)
+			}
+		})
+	}
+}
+
 func TestIntersection(t *testing.T) {
 	r := NewSet([]int{4, 7, 8, 23, 138})
 	s := NewSet([]int{9, 21, 22, 23, 87, 132, 138})
@@ -114,24 +154,72 @@ func TestIntersection(t *testing.T) {
 	assertTrue(t, s.Has(138))
 }
 
-func TestDisjointFrom(t *testing.T) {
-	t.Run("it returns true if receiver set has no common items with other", func(t *testing.T) {
-		odd := NewSet([]int{1, 3, 5, 7})
-		even := NewSet([]int{2, 4, 6, 8})
+func TestIsDisjointFrom(t *testing.T) {
+	testCases := []struct {
+		name     string
+		s1       *Set[int]
+		s2       *Set[int]
+		expected bool
+	}{
+		{
+			name:     "it is disjointed from",
+			s1:       NewSet([]int{1, 3, 5, 7}),
+			s2:       NewSet([]int{2, 4, 6, 8}),
+			expected: true,
+		},
+		{
+			name:     "it is not disjointed from",
+			s1:       NewSet([]int{0, 1, 3}),
+			s2:       NewSet([]int{2, 4, 1}),
+			expected: false,
+		},
+	}
 
-		got := odd.DisjointFrom(even)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := tc.s1.IsDisjointFrom(tc.s2)
+			if got != tc.expected {
+				t.Errorf("got: %v but expected %v", got, tc.expected)
+			}
+		})
+	}
+}
 
-		assertTrue(t, got)
-	})
+func TestIsSubsetOf(t *testing.T) {
+	testCases := []struct {
+		name     string
+		s1       *Set[int]
+		s2       *Set[int]
+		expected bool
+	}{
+		{
+			name:     "it is not subset, receiver has more items",
+			s1:       NewSet([]int{1, 2, 3, 4, 5}),
+			s2:       NewSet([]int{1, 2, 3}),
+			expected: false,
+		},
+		{
+			name:     "it is subset",
+			s1:       NewSet([]int{1, 2, 3}),
+			s2:       NewSet([]int{1, 2, 3, 4, 5}),
+			expected: true,
+		},
+		{
+			name:     "it is not subset",
+			s1:       NewSet([]int{1, 3, 70}),
+			s2:       NewSet([]int{1, 2, 3, 4}),
+			expected: false,
+		},
+	}
 
-	t.Run("it returns false if receiver set has common items with other", func(t *testing.T) {
-		one := NewSet([]string{"a", "b", "d"})
-		two := NewSet([]string{"c", "e", "b"})
-
-		got := one.DisjointFrom(two)
-
-		assertFalse(t, got)
-	})
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := tc.s1.IsSubsetOf(tc.s2)
+			if got != tc.expected {
+				t.Errorf("got: %v but expected %v", got, tc.expected)
+			}
+		})
+	}
 }
 
 func TestSize(t *testing.T) {
