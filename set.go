@@ -142,6 +142,24 @@ func (s Set[T]) IsSubsetOf(other *Set[T]) bool {
 	return true
 }
 
+/*
+Returns true if all the items in the other set are contained
+in the receiver set.
+*/
+func (s Set[T]) IsSupersetOf(other *Set[T]) bool {
+	if s.Size() < other.Size() {
+		return false
+	}
+
+	for v := range other.data {
+		if !s.Has(v) {
+			return false
+		}
+	}
+
+	return true
+}
+
 func (s Set[T]) Size() int {
 	return len(s.data)
 }

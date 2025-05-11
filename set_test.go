@@ -222,6 +222,43 @@ func TestIsSubsetOf(t *testing.T) {
 	}
 }
 
+func TestIsSupersetOf(t *testing.T) {
+	testCases := []struct {
+		name     string
+		s1       *Set[int]
+		s2       *Set[int]
+		expected bool
+	}{
+		{
+			name:     "it is not superset, other has more items",
+			s1:       NewSet([]int{1, 2, 3}),
+			s2:       NewSet([]int{1, 2, 3, 4, 5}),
+			expected: false,
+		},
+		{
+			name:     "it is superset",
+			s1:       NewSet([]int{1, 2, 3, 4, 5}),
+			s2:       NewSet([]int{1, 2, 3}),
+			expected: true,
+		},
+		{
+			name:     "it is not superset",
+			s1:       NewSet([]int{1, 2, 3, 4}),
+			s2:       NewSet([]int{1, 3, 70}),
+			expected: false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := tc.s1.IsSupersetOf(tc.s2)
+			if got != tc.expected {
+				t.Errorf("got: %v but expected %v", got, tc.expected)
+			}
+		})
+	}
+}
+
 func TestSize(t *testing.T) {
 	s := NewSet([]string{"a", "b", "c"})
 	size := s.Size()
