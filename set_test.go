@@ -267,6 +267,43 @@ func TestSize(t *testing.T) {
 	}
 }
 
+func TestSymmetricDifference(t *testing.T) {
+	testCases := []struct {
+		name string
+		s1   *Set[int]
+		s2   *Set[int]
+		want *Set[int]
+	}{
+		{
+			name: "case 1",
+			s1:   NewSet([]int{1, 2, 3, 9}),
+			s2:   NewSet([]int{1, 2, 3, 4, 5}),
+			want: NewSet([]int{4, 5, 9}),
+		},
+		{
+			name: "case 2",
+			s1:   NewSet([]int{1, 2, 3}),
+			s2:   NewSet([]int{1, 2, 3}),
+			want: NewEmptySet[int](),
+		},
+		{
+			name: "case 3",
+			s1:   NewSet([]int{1, 2}),
+			s2:   NewSet([]int{3, 4, 5, 350}),
+			want: NewSet([]int{1, 2, 3, 4, 5, 350}),
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := tc.s1.SymmetricDifference(tc.s2)
+			if !got.Equal(tc.want) {
+				t.Errorf("got: %v but want %v", got, tc.want)
+			}
+		})
+	}
+}
+
 func assertTrue(t *testing.T, a bool) {
 	t.Helper()
 	if !a {

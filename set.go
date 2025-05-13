@@ -163,3 +163,25 @@ func (s Set[T]) IsSupersetOf(other *Set[T]) bool {
 func (s Set[T]) Size() int {
 	return len(s.data)
 }
+
+/*
+Return a new set with the values in the receiver set and the
+other set but not in both.
+*/
+func (s Set[T]) SymmetricDifference(other *Set[T]) *Set[T] {
+	result := NewEmptySet[T]()
+
+	for v := range s.data {
+		if !other.Has(v) {
+			result.Add(v)
+		}
+	}
+
+	for v := range other.data {
+		if !s.Has(v) {
+			result.Add(v)
+		}
+	}
+
+	return result
+}
