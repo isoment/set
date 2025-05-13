@@ -8,7 +8,7 @@ type Set[T Item] struct {
 	data map[T]SetValue
 }
 
-func NewSet[T Item](items []T) *Set[T] {
+func New[T Item](items []T) *Set[T] {
 	data := make(map[T]SetValue)
 	for _, v := range items {
 		data[v] = SetValue{}
@@ -16,7 +16,7 @@ func NewSet[T Item](items []T) *Set[T] {
 	return &Set[T]{data}
 }
 
-func NewEmptySet[T Item]() *Set[T] {
+func NewEmpty[T Item]() *Set[T] {
 	data := make(map[T]SetValue)
 	return &Set[T]{data}
 }
@@ -45,7 +45,7 @@ Returns a new set with all items that are in the receiver set
 but not in the other set.
 */
 func (s Set[T]) Difference(other *Set[T]) (r *Set[T]) {
-	r = NewEmptySet[T]()
+	r = NewEmpty[T]()
 
 	if s.Size() == 0 {
 		return
@@ -96,7 +96,7 @@ Returns a new set with all common items in the receiver set
 and the other set.
 */
 func (s Set[T]) Intersection(other *Set[T]) (r *Set[T]) {
-	r = NewEmptySet[T]()
+	r = NewEmpty[T]()
 
 	if s.Size() == 0 {
 		return
@@ -165,11 +165,11 @@ func (s Set[T]) Size() int {
 }
 
 /*
-Return a new set with the values in the receiver set and the
+Return a new set with the items in the receiver set and the
 other set but not in both.
 */
 func (s Set[T]) SymmetricDifference(other *Set[T]) *Set[T] {
-	result := NewEmptySet[T]()
+	result := NewEmpty[T]()
 
 	for v := range s.data {
 		if !other.Has(v) {
@@ -183,5 +183,33 @@ func (s Set[T]) SymmetricDifference(other *Set[T]) *Set[T] {
 		}
 	}
 
+	return result
+}
+
+/*
+Return a new set with all items from both the receiver and other
+sets.
+*/
+func (s Set[T]) Union(other *Set[T]) (result *Set[T]) {
+	result = NewEmpty[T]()
+
+	for v := range s.data {
+		result.Add(v)
+	}
+
+	for v := range other.data {
+		result.Add(v)
+	}
+
+	return
+}
+
+func (s Set[T]) Values() []T {
+	result := make([]T, s.Size())
+	c := 0
+	for v := range s.data {
+		result[c] = v
+		c++
+	}
 	return result
 }
